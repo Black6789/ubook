@@ -5,7 +5,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
 import 'package:google_fonts/google_fonts.dart';
 import 'Home.dart';
 
@@ -17,6 +16,7 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
+  String es="";
   bool isAsyncCall = false;
   bool isFormValid =false;
   String? r;
@@ -38,7 +38,7 @@ class _loginState extends State<login> {
       setState(() {
         isAsyncCall = true;
       });
-      var url = "https://viewless-disasters.000webhostapp.com/php/signup.php";
+      var url = "https://ubooksstore.000webhostapp.com/signup.php";
       var res = await http.post(Uri.parse(url), body: {
         'fname': fname.text,
         'lname': lname.text,
@@ -52,6 +52,10 @@ class _loginState extends State<login> {
         });
         String e1 = jsonDecode(res.body);
         print('True');
+        setState(() {
+          es=e1;
+        });
+
       }
     }catch(e){
       setState(() {
@@ -65,7 +69,7 @@ class _loginState extends State<login> {
       setState(() {
         isAsyncCall = true;
       });
-      var url = "https://viewless-disasters.000webhostapp.com/php/login.php";
+      var url = "https://ubooksstore.000webhostapp.com/login.php";
       var res = await http.post(Uri.parse(url), body: {
         'email': logemail.text,
         'password': logpassword.text,
@@ -100,18 +104,18 @@ class _loginState extends State<login> {
     super.initState();
 
     SharedPreferences.getInstance().then((prefs) {
-      bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+     // bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-      if (isLoggedIn) {
-       // Navigator.of(context).pushReplacement(
-       //   MaterialPageRoute(builder: (context) => prpa()),
-       // );
-      }
+     // if (isLoggedIn) {
+      //  Navigator.of(context).pushReplacement(
+      //    MaterialPageRoute(builder: (context) => homepage()),
+     //   );
+     // }
     });
   }
 
 
-  int x = 1;
+  int x = 0;
   final emailRegex = RegExp(r'/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
   TextEditingController logemail = TextEditingController();
   TextEditingController logpassword = TextEditingController();
@@ -119,8 +123,6 @@ class _loginState extends State<login> {
   TextEditingController sigpassword = TextEditingController();
   TextEditingController fname = TextEditingController();
   TextEditingController lname = TextEditingController();
-  FocusNode _focusNode = FocusNode();
-  FocusNode _focusNode1 = FocusNode();
   String? emailErrorText ;
   String?passwordErrorText;
   String?fnameErrorText;
@@ -319,6 +321,10 @@ class _loginState extends State<login> {
                               setState(() {
                                 x = 1;
                               });
+                              logemail.clear();
+                              logpassword.clear();
+                              logemailFocusNode.unfocus();
+                              logpassFocusNode.unfocus();
                             },
                             child: Text(
                               "Sign up ",
@@ -385,6 +391,14 @@ class _loginState extends State<login> {
                                       lnameFocusNode.unfocus();
                                       emailFocusNode.unfocus();
                                       passwordFocusNode.unfocus();
+                                      setState(() {
+                                        fnameErrorText=null;
+                                        lnameErrorText=null;
+                                        emailErrorText=null;
+                                        passwordErrorText=null;
+                                      });
+
+
                                  setState(() {
                                    x=0;
                                  });
@@ -427,16 +441,17 @@ class _loginState extends State<login> {
                   SizedBox(height: 12),
                       Container(
 
-                        height: 60,
+                        height: 80,
 
                       child: Row(
                       children: [
                         Container(
                           alignment: Alignment.topLeft,
-                      height: 60,
+                      height: 80,
                       width: 150,
                       child:
                      TextFormField(
+                       style: TextStyle(color: Colors.white),
                        focusNode: fnameFocusNode,
                        controller: fname,
                        keyboardType: TextInputType.text,
@@ -490,10 +505,11 @@ class _loginState extends State<login> {
                      ),
                      Container(
                        alignment: Alignment.topLeft,
-                     height: 60,
+                     height: 80,
                      width: 150,
                      child:
                      TextFormField(
+                       style: TextStyle(color: Colors.white),
                        focusNode: lnameFocusNode,
                        controller: lname,
                        keyboardType: TextInputType.text,
@@ -650,6 +666,15 @@ class _loginState extends State<login> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 10,),
+                es == "True" ? Text(
+                  "Added Successfully",
+                  style: TextStyle(color: Color(int.parse('0xFFFBC61A'))),
+                ) :es=="false"?Text(
+                  "Email is already exist",
+                  style: TextStyle(color: Colors.red),
+                ):
+                SizedBox(),
 
 
                   ]
@@ -663,7 +688,7 @@ Container(
                                   children: [
 
                                     Text(
-                                      'Next',
+                                      'Done',
                                       style: GoogleFonts.inter(
                                         textStyle: TextStyle(
                                           fontSize: 40,
@@ -680,10 +705,17 @@ Container(
                                         checkFormValidation();
                                         if(isFormValid==true) {
                                           await adddatasign();
-                                          fname.clear();
-                                          lname.clear();
-                                          sigemail.clear();
-                                          sigpassword.clear();
+                                          if(es=="True") {
+
+                                            fname.clear();
+                                            lname.clear();
+                                            sigemail.clear();
+                                            sigpassword.clear();
+                                          }
+                                          fnameFocusNode.unfocus();
+                                          lnameFocusNode.unfocus();
+                                          emailFocusNode.unfocus();
+                                          passwordFocusNode.unfocus();
 
                                         }
                                       },
