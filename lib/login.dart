@@ -19,6 +19,8 @@ class _loginState extends State<login> {
   String es="";
   bool isAsyncCall = false;
   bool isFormValid =false;
+  bool isFormValid2 =false;
+
   String? r;
   String txt='';
   void checkFormValidation() {
@@ -29,6 +31,16 @@ class _loginState extends State<login> {
           (emailErrorText == null && sigemail.text.isNotEmpty) &&
           (passwordErrorText == null && sigpassword.text.isNotEmpty)){
         isFormValid=true;
+      }
+    });
+  }
+  void checkFormValidationlogin() {
+    setState(() {
+      if(
+      (logemailErrorText == null && logemail.text.isNotEmpty) &&
+          (logemailErrorText == null && logpassword.text.isNotEmpty)
+        ){
+        isFormValid2=true;
       }
     });
   }
@@ -103,15 +115,15 @@ class _loginState extends State<login> {
   void initState() {
     super.initState();
 
-    SharedPreferences.getInstance().then((prefs) {
+   // SharedPreferences.getInstance().then((prefs) {
      // bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-     // if (isLoggedIn) {
-      //  Navigator.of(context).pushReplacement(
-      //    MaterialPageRoute(builder: (context) => homepage()),
-     //   );
+      //if (isLoggedIn) {
+        //Navigator.of(context).pushReplacement(
+          //MaterialPageRoute(builder: (context) => homepage()),
+        //);
      // }
-    });
+    //});
   }
 
 
@@ -127,6 +139,9 @@ class _loginState extends State<login> {
   String?passwordErrorText;
   String?fnameErrorText;
   String?lnameErrorText;
+  String?logpassErrorText;
+  String?logemailErrorText;
+
 
 
   FocusNode fnameFocusNode = FocusNode();
@@ -188,9 +203,17 @@ class _loginState extends State<login> {
                           child: TextFormField(
                             style: TextStyle(color: Colors.white),
                             controller: logemail,
+                            onChanged: (value) {
+                              if (value.isEmpty) {
+                                setState(() {
+                                  emailErrorText = 'Is empty';
+                                });
+                              }
+                            },
                             focusNode: logemailFocusNode,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
+                              errorText: logemailErrorText,
                               filled: true,
                               fillColor: Color.fromRGBO(0, 0, 0, 0.20),
                               hintText: 'Email',
@@ -222,10 +245,18 @@ class _loginState extends State<login> {
                           child: TextField(
                             style: TextStyle(color: Colors.white),
                             controller: logpassword,
+                            onChanged: (value) {
+                              if (value.isEmpty) {
+                                setState(() {
+                                  emailErrorText = 'is empty';
+                                });
+                              }
+                            },
                             focusNode: logpassFocusNode,
                             keyboardType: TextInputType.text,
                             obscureText: true,
                             decoration: InputDecoration(
+                              errorText: logpassErrorText,
                               filled: true,
                               fillColor: Color.fromRGBO(0, 0, 0, 0.20),
                               hintText: 'Password',
@@ -274,25 +305,42 @@ class _loginState extends State<login> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                await login();
-                                if (r == "True") {
-                                  setState(() {
-                                    txt = "";
-                                    r = '';
-                                  });
-                                  logemail.clear();
-                                  logpassword.clear();
-                                  logemailFocusNode.unfocus();
-                                  logpassFocusNode.unfocus();
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  prefs.setBool('isLoggedIn', true);
+                                checkFormValidationlogin();
+                                if(isFormValid2==true) {
+                                  await login();
+                                  if (r == "True") {
+                                    setState(() {
+                                      txt = "";
+                                      r = '';
+                                    });
+                                    logemail.clear();
+                                    logpassword.clear();
+                                    logemailFocusNode.unfocus();
+                                    logpassFocusNode.unfocus();
+                                    SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                    prefs.setBool('isLoggedIn', true);
 
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => homepage()),
-                                  );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => homepage()),
+                                    );
+                                  }
+                                }
+                                else{
+                                  if(logemailErrorText!=null){
+                                    logemailFocusNode.requestFocus();
+                                  }else if(logpassErrorText!=null){
+                                    logpassFocusNode.requestFocus();
+                                  }
+                                  else{
+                                    setState(() {
+                                      logemailErrorText="is empty";
+                                    });
+                                    logemailFocusNode.requestFocus();
+
+                                  }
                                 }
                               },
                               child: ClipOval(
@@ -426,10 +474,10 @@ class _loginState extends State<login> {
                                 )
                               ),
 
-                              SizedBox(height:SHeight*0.10),
+                              SizedBox(height:SHeight*0.08),
 
             Container(
-              height: SHeight*0.36,
+              height: SHeight*0.38,
               padding: EdgeInsets.symmetric(horizontal: SWidth*0.12),
 
 
