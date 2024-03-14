@@ -6,7 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ubook/addbooks.dart';
 import 'Home.dart';
+
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -113,17 +115,18 @@ class _loginState extends State<login> {
   }
   @override
   void initState() {
+    SharedPreferences.getInstance().then((prefs) {
+      bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+      if (isLoggedIn) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => homepage()),
+        );
+      }
+    });
     super.initState();
 
-   // SharedPreferences.getInstance().then((prefs) {
-     // bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-      //if (isLoggedIn) {
-        //Navigator.of(context).pushReplacement(
-          //MaterialPageRoute(builder: (context) => homepage()),
-        //);
-     // }
-    //});
   }
 
 
