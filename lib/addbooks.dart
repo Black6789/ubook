@@ -12,7 +12,7 @@ import 'package:mime/mime.dart';
 import 'Home.dart';
 
 class addb extends StatefulWidget {
-  final List<Category> cat; // تحديث استيراد الفئة واستخدام List<Category>
+  final List<Category> cat;
   addb({required this.cat});
 
   @override
@@ -320,13 +320,23 @@ class _addbState extends State<addb> {
                     SizedBox(
                       height: 15,
                     ),
+              Theme(  // Wrap the body with Theme
+              data: Theme.of(context).copyWith(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+              ),
+              child:
                     DropdownButtonFormField<Category>(
+
+                      enableFeedback: false,
                       value: selectedCategory,
+
                       hint: Text(
                         hintText,
                         style: TextStyle(color: Colors.white),
                       ),
                       decoration: InputDecoration(
+                        hoverColor: Color(int.parse('0xFFF052a50')),
                         filled: true,
                         fillColor: Color.fromRGBO(0, 0, 0, 0.20),
                         border: OutlineInputBorder(
@@ -334,6 +344,10 @@ class _addbState extends State<addb> {
                           borderSide: BorderSide.none,
                         ),
                       ),
+
+                      focusColor:  Color(int.parse('0xFFF052a50')),
+
+
                       dropdownColor: Color(int.parse('0xFFF052a50')),
                       onChanged: (Category? value) {
                         setState(() {
@@ -357,6 +371,7 @@ class _addbState extends State<addb> {
                         );
                       }).toList(),
                     ),
+              ),
                     SizedBox(height: 20),
 
                     Row(
@@ -456,6 +471,11 @@ class _addbState extends State<addb> {
                   ],
                 ),
               ),
-            ]))));
+            ]
+                  )
+                  )
+                  )
+
+    );
   }
 }
