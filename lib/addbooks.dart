@@ -762,8 +762,7 @@ class _addbState extends State<addb> {
                         foregroundColor: Colors.black,
                       ),
                       child: Text('Pick Images'),
-                    ),
-                    Wrap(
+                    ), Wrap(
                       spacing: 8.0,
                       runSpacing: 8.0,
                       children: images.map((image) => Container(
@@ -771,7 +770,8 @@ class _addbState extends State<addb> {
                         height: 100,
                         child: Image.file(image),
                       )).toList(),
-                    ), ElevatedButton(
+                    ),
+                    ElevatedButton(
                       onPressed: getImages,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber,
@@ -779,11 +779,6 @@ class _addbState extends State<addb> {
                       ),
                       child: Text('Pick Images'),
                     ),
-
-                    SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
                             SizedBox(height: 10),
                             Wrap(
                               spacing: 8.0,
@@ -794,8 +789,7 @@ class _addbState extends State<addb> {
                                 child: Image.file(image),
                               )).toList(),
                             ),
-                          ],
-                        )),
+
                     SizedBox(
                       height: 20,
                     ),
