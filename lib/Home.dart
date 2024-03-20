@@ -7,6 +7,7 @@ import 'dart:convert' as convert;
 import 'package:google_fonts/google_fonts.dart';
 import 'Home.dart';
 import 'addbooks.dart';
+import 'login.dart';
 
 class homepage extends StatefulWidget {
   @override
@@ -220,9 +221,13 @@ class _homepageState extends State<homepage> {
                       fontSize: 18,
                     ),
                   ),
-                  onTap: () {
-                    // Update UI based on the selected item
-                    Navigator.pop(context);
+                  onTap: ()  async {
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    prefs.remove('isLoggedIn');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => login()),
+                    );
                   },
                 ),
                 Divider(

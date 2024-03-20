@@ -151,11 +151,6 @@ class _addbState extends State<addb> {
       request.fields['category'] = catEditingController.text;
       request.fields['description'] = descEditingController.text;
       request.fields['status'] = Status;
-      print(titleEditingController.text);
-      print(authEditingController.text);
-      print(catEditingController.text);
-      print(descEditingController.text);
-
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
