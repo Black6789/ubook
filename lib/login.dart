@@ -115,15 +115,15 @@ class _loginState extends State<login> {
   }
   @override
   void initState() {
-    SharedPreferences.getInstance().then((prefs) {
-      bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  //  SharedPreferences.getInstance().then((prefs) {
+   //   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-      if (isLoggedIn) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => homepage()),
-        );
-      }
-    });
+    //  if (isLoggedIn) {
+    //    Navigator.of(context).pushReplacement(
+    //      MaterialPageRoute(builder: (context) => homepage()),
+    //    );
+    //  }
+   // });
     super.initState();
 
 
@@ -284,7 +284,7 @@ class _loginState extends State<login> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 30),
                         Text(
                           txt,
                           style: TextStyle(fontSize: 14, color: Colors.red),
@@ -292,7 +292,7 @@ class _loginState extends State<login> {
                         Row(
                           children: [
                             SizedBox(
-                              width: SWidth * 0.06,
+                              width: SWidth * 0.1,
                             ),
                             Text(
                               'Sign in',
@@ -304,7 +304,7 @@ class _loginState extends State<login> {
                               ),
                             ),
                             SizedBox(
-                              width: SWidth * 0.34,
+                              width: SWidth * 0.25,
                             ),
                             GestureDetector(
                               onTap: () async {
@@ -499,7 +499,7 @@ class _loginState extends State<login> {
                         Container(
                           alignment: Alignment.topLeft,
                       height: 80,
-                      width: 150,
+                      width: SWidth*0.35,
                       child:
                      TextFormField(
                        style: TextStyle(color: Colors.white),

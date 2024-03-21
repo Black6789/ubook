@@ -16,7 +16,6 @@ class addb extends StatefulWidget {
   @override
   State<addb> createState() => _addbState();
 }
-List<File> images = [];
 
 class author {
   String name;
@@ -151,14 +150,27 @@ class _addbState extends State<addb> {
       request.fields['category'] = catEditingController.text;
       request.fields['description'] = descEditingController.text;
       request.fields['status'] = Status;
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+
+      for (int i = 0; i < images.length; i++) {
+        File imageFile = images[i];
+        if (imageFile != null && await imageFile.length() > 0) {
+          String fieldName = 'image$i';
+          String originalFilename = imageFile.path.split('/').last; // Obtain original filename
+          request.files.add(await http.MultipartFile.fromPath(
+            fieldName,
+            imageFile.path,
+            filename: originalFilename, // Use the original filename
+          ));
+        }
+      }
+
+      var response = await request.send();
 
       if (response.statusCode == 200) {
         setState(() {
           isAsyncCall = false;
         });
-        String e1 = jsonDecode(response.body);
+        String e1 = await response.stream.bytesToString();
         if (e1 == "True") {
           print(e1);
           setState(() {
@@ -178,6 +190,8 @@ class _addbState extends State<addb> {
       print(e);
     }
   }
+
+  List<File> images = [];
   Future<void> getImages() async {
     List<XFile>? xFiles = await ImagePicker().pickMultiImage();
     if (xFiles == null) {
@@ -200,6 +214,7 @@ class _addbState extends State<addb> {
       images.addAll(xFiles.map((xFile) => File(xFile.path)));
     });
   }
+
   static const int maxImages = 5;
   String filterTextcat = '';
 
@@ -271,29 +286,6 @@ class _addbState extends State<addb> {
       setState(() {
         addcatValid = false;
       });
-    }
-  }
-
-  Future<void> pickImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      // Check the mime type
-      String mimeType = lookupMimeType(pickedImage.path) ?? '';
-      List<String> allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-
-      if (allowedMimeTypes.contains(mimeType)) {
-        setState(() {
-          isImageSelected = true;
-          imageFile = File(pickedImage.path);
-          imageName = pickedImage.name;
-        });
-      } else {
-        print('Unsupported image type.');
-      }
-    } else {
-      print('No image selected.');
     }
   }
 
@@ -418,9 +410,7 @@ class _addbState extends State<addb> {
                         ),
                       ),
                     ),
-
                     if (showListtitle)
-
                       ListView.builder(
                         shrinkWrap: true,
                         itemCount: filteredtitle.length,
@@ -751,22 +741,6 @@ class _addbState extends State<addb> {
                       height: 10,
                     ),
                     ElevatedButton(
-                      onPressed:  getImages,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
-                        foregroundColor: Colors.black,
-                      ),
-                      child: Text('Pick Images'),
-                    ), Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      children: images.map((image) => Container(
-                        width: 100,
-                        height: 100,
-                        child: Image.file(image),
-                      )).toList(),
-                    ),
-                    ElevatedButton(
                       onPressed: getImages,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber,
@@ -774,17 +748,17 @@ class _addbState extends State<addb> {
                       ),
                       child: Text('Pick Images'),
                     ),
-                            SizedBox(height: 10),
-                            Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              children: images.map((image) => Container(
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: images
+                          .map((image) => Container(
                                 width: 100,
                                 height: 100,
                                 child: Image.file(image),
-                              )).toList(),
-                            ),
-
+                              ))
+                          .toList(),
+                    ),
                     SizedBox(
                       height: 20,
                     ),
