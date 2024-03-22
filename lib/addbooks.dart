@@ -51,6 +51,7 @@ class _addbState extends State<addb> {
   @override
   List<author> filteredAuth = auth;
   List<titles> filteredtitle = titl;
+
   Future<void> lcateg() async {
     try {
       var url = "https://ubooksstore.000webhostapp.com/cat.php";
@@ -134,6 +135,32 @@ class _addbState extends State<addb> {
       // Handle the error as needed, e.g., show an error message to the user
     }
   }
+bool pc=false;
+  late File CoverFile;
+
+  Future<void> pickCover() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+
+    if (pickedFile != null) {
+      String mimeType = lookupMimeType(pickedFile.path) ?? '';
+      List<String> allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (allowedMimeTypes.contains(mimeType)) {
+        setState(() {
+          pc=true;
+          CoverFile = File(pickedFile.path);
+        });
+      } else {
+        print('Unsupported image type.');
+      }
+    } else {
+      print('No image selected.');
+    }
+  }
+
+
+
 
   Future<void> addbook() async {
     try {
@@ -163,7 +190,12 @@ class _addbState extends State<addb> {
           ));
         }
       }
-
+      request.files.add(http.MultipartFile(
+        'Cover',
+        CoverFile.readAsBytes().asStream(),
+        CoverFile.lengthSync(),
+        filename: CoverFile.path.split('/').last,
+      ));
       var response = await request.send();
 
       if (response.statusCode == 200) {
@@ -216,6 +248,7 @@ class _addbState extends State<addb> {
   }
 
   static const int maxImages = 5;
+  static const int maxCover = 1;
   String filterTextcat = '';
 
   FocusNode descFocusNode = FocusNode();
@@ -232,15 +265,15 @@ class _addbState extends State<addb> {
   late bool showListtitle;
   late bool showListcat;
   late String txt;
-  late Image image;
+
+
   String? r;
   String? selectedAuthor;
   String? titleErrorText;
   String? authErrorText;
   File? file;
   //late String Nfile;
-  late String imageName = 'No image selected';
-  late File imageFile;
+
   String nauthor = '';
   bool isAsyncCall = false;
   Category? selectedCategory;
@@ -266,7 +299,7 @@ class _addbState extends State<addb> {
         titleEditingController.text.isNotEmpty &&
         authEditingController.text.isNotEmpty &&
         catEditingController.text.isNotEmpty &&
-        Status.isNotEmpty) {
+        Status.isNotEmpty && images.isNotEmpty&&pc==true) {
       setState(() {
         addbookValid = true;
       });
@@ -740,6 +773,31 @@ class _addbState extends State<addb> {
                     SizedBox(
                       height: 10,
                     ),
+                    ElevatedButton(
+                      onPressed: pickCover,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber,
+                        foregroundColor: Colors.black,
+                      ),
+                      child: Text('Pick Cover'),
+                    ),
+                  pc==true?
+                    Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        child: Image.file(
+                          CoverFile,
+
+                        ),
+                      ),
+                    ],
+                  ) : SizedBox(),
+                    SizedBox(height: 10,),
+
                     ElevatedButton(
                       onPressed: getImages,
                       style: ElevatedButton.styleFrom(

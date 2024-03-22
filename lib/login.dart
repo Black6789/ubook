@@ -115,15 +115,15 @@ class _loginState extends State<login> {
   }
   @override
   void initState() {
-  //  SharedPreferences.getInstance().then((prefs) {
-   //   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    SharedPreferences.getInstance().then((prefs) {
+     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    //  if (isLoggedIn) {
-    //    Navigator.of(context).pushReplacement(
-    //      MaterialPageRoute(builder: (context) => homepage()),
-    //    );
-    //  }
-   // });
+      if (isLoggedIn) {
+       Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => homepage()),
+        );
+      }
+    });
     super.initState();
 
 
