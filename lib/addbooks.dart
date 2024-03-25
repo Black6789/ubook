@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter_dropdown/flutter_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -15,6 +16,19 @@ import 'Home.dart';
 class addb extends StatefulWidget {
   @override
   State<addb> createState() => _addbState();
+}
+
+class position {
+  String p;
+  position(this.p);
+}
+
+List<position> pos = [];
+
+void addposition() {
+  pos.add(position("Sell"));
+  pos.add(position("Trade"));
+  pos.add(position("Stock"));
 }
 
 class author {
@@ -135,20 +149,20 @@ class _addbState extends State<addb> {
       // Handle the error as needed, e.g., show an error message to the user
     }
   }
-bool pc=false;
+
+  bool pc = false;
   late File CoverFile;
 
   Future<void> pickCover() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-
     if (pickedFile != null) {
       String mimeType = lookupMimeType(pickedFile.path) ?? '';
       List<String> allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (allowedMimeTypes.contains(mimeType)) {
         setState(() {
-          pc=true;
+          pc = true;
           CoverFile = File(pickedFile.path);
         });
       } else {
@@ -159,10 +173,10 @@ bool pc=false;
     }
   }
 
-
-
-
   Future<void> addbook() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String email = prefs.getString('email') ?? '';
+
     try {
       setState(() {
         isAsyncCall = true;
@@ -177,12 +191,17 @@ bool pc=false;
       request.fields['category'] = catEditingController.text;
       request.fields['description'] = descEditingController.text;
       request.fields['status'] = Status;
+      request.fields['price'] = priceEditingController.text;
+      request.fields['position'] = positionEditing;
+      request.fields['email'] = email;
+
 
       for (int i = 0; i < images.length; i++) {
         File imageFile = images[i];
         if (imageFile != null && await imageFile.length() > 0) {
           String fieldName = 'image$i';
-          String originalFilename = imageFile.path.split('/').last; // Obtain original filename
+          String originalFilename =
+              imageFile.path.split('/').last; // Obtain original filename
           request.files.add(await http.MultipartFile.fromPath(
             fieldName,
             imageFile.path,
@@ -247,11 +266,12 @@ bool pc=false;
     });
   }
 
-  static const int maxImages = 5;
+  static const int maxImages = 3;
   static const int maxCover = 1;
   String filterTextcat = '';
 
   FocusNode descFocusNode = FocusNode();
+  FocusNode priceFocusNode = FocusNode();
   FocusNode titleFocusNode = FocusNode();
   FocusNode authFocusNode = FocusNode();
   TextEditingController nationality = TextEditingController();
@@ -260,12 +280,15 @@ bool pc=false;
   TextEditingController authEditingController = TextEditingController();
   TextEditingController catEditingController = TextEditingController();
   TextEditingController descEditingController = TextEditingController();
+  TextEditingController priceEditingController = TextEditingController();
+  String positionEditing = "";
+  String positionHintText = "Select position";
+  position selePlayer = position("");
   String cvalue = '';
   late bool showListauth;
   late bool showListtitle;
   late bool showListcat;
   late String txt;
-
 
   String? r;
   String? selectedAuthor;
@@ -277,7 +300,9 @@ bool pc=false;
   String nauthor = '';
   bool isAsyncCall = false;
   Category? selectedCategory;
+  position? selectedpos;
   String hintTextCat = '  Select Category';
+  String hintTextpos = '  Select pos';
   String hintTexttitle = '  Title';
   String hintTextauth = '  author';
   String Status = "";
@@ -285,7 +310,8 @@ bool pc=false;
   String valueselected = "";
   String? natErrorText;
   String? catErrorText;
-  String? addressErrorText;
+  String? descErrorText;
+  String? priceErrorText;
   Color buttoncolor = Colors.blue;
   bool isButtonenabled = true;
   int x = 1;
@@ -299,7 +325,12 @@ bool pc=false;
         titleEditingController.text.isNotEmpty &&
         authEditingController.text.isNotEmpty &&
         catEditingController.text.isNotEmpty &&
-        Status.isNotEmpty && images.isNotEmpty&&pc==true) {
+        Status.isNotEmpty &&
+        images.isNotEmpty &&
+        pc == true &&
+        priceEditingController.text.isNotEmpty &&
+        positionEditing.isNotEmpty) {
+      print("price: ${priceEditingController.text}");
       setState(() {
         addbookValid = true;
       });
@@ -325,6 +356,7 @@ bool pc=false;
   @override
   void initState() {
     // TODO: implement initState
+    addposition();
     lbook();
     lcateg();
     lauther();
@@ -499,18 +531,18 @@ bool pc=false;
                       onChanged: (value) {
                         if (value.isEmpty) {
                           setState(() {
-                            addressErrorText = 'description required';
+                            descErrorText = 'description required';
                           });
                         } else {
                           setState(() {
-                            addressErrorText = null;
+                            descErrorText = null;
                           });
                         }
                       },
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         filled: true,
-                        errorText: addressErrorText,
+                        errorText: descErrorText,
                         fillColor: Color.fromRGBO(0, 0, 0, 0.20),
                         hintText: '  Description',
                         hintStyle: TextStyle(color: Colors.white),
@@ -529,6 +561,115 @@ bool pc=false;
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                        height: 80,
+                        child: Row(children: [
+                          SizedBox(
+                            width: SWidth * 0.03,
+                          ),
+                          Container(
+                            alignment: Alignment.topLeft,
+                            height: 80,
+                            width: 150,
+                            child: TextFormField(
+                              style: TextStyle(color: Colors.white),
+                              focusNode: priceFocusNode,
+                              controller: priceEditingController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(
+                                    r'^[1-9]\d*\.?\d*|^0\.?\d*[1-9]\d*$')),
+                              ],
+                              onChanged: (value) {
+                                if (value.isEmpty) {
+                                  setState(() {
+                                    priceErrorText = 'price required';
+
+                                  });
+                                } else {
+                                  setState(() {
+                                    print(
+                                        "price:${priceEditingController.text}");
+                                    priceErrorText = null;
+                                  });
+                                }
+                              },
+                              decoration: InputDecoration(
+                                filled: true,
+                                errorText: priceErrorText,
+                                fillColor: Color.fromRGBO(0, 0, 0, 0.20),
+                                hintText: '  Price \$',
+                                hintStyle: TextStyle(color: Colors.white),
+                                floatingLabelStyle: TextStyle(fontSize: 15),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color.fromRGBO(0, 0, 0, 0.20),
+                                  ),
+                                  borderRadius: BorderRadius.circular(32.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Color(int.parse('0xFFFBC61A')),
+                                      width: 2.0), // White border on focus
+                                  borderRadius: BorderRadius.circular(32.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: SWidth * 0.08,
+                          ),
+                          Container(
+                            alignment: Alignment.topLeft,
+                            height: 80,
+                            width: 150,
+                            child: DropdownButtonFormField<position>(
+                              enableFeedback: false,
+                              value: selectedpos,
+                              hint: Text(
+                                hintTextpos,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              decoration: InputDecoration(
+                                hoverColor: Color(int.parse('0xFFF052a50')),
+                                filled: true,
+                                fillColor: Color.fromRGBO(0, 0, 0, 0.20),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(32.0),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              focusColor: Color(int.parse('0xFFF052a50')),
+                              dropdownColor: Color(int.parse('0xFFF052a50')),
+                              onChanged: (position? value) {
+                                setState(() {
+                                  if (value != null) {
+                                    hintTextpos = value.p;
+                                    positionEditing = value.p;
+                                    print('Selected position: ${value.p}');
+                                  } else {
+                                    hintTextpos = 'Select pos';
+                                    positionEditing = "";
+                                    print('No position selected');
+                                  }
+                                });
+                              },
+                              items: pos.map<DropdownMenuItem<position>>(
+                                  (position postn) {
+                                return DropdownMenuItem<position>(
+                                  value: postn,
+                                  child: Text(
+                                    postn.p,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ])),
                     SizedBox(
                       height: 15,
                     ),
@@ -560,9 +701,11 @@ bool pc=false;
                           setState(() {
                             if (value != null) {
                               hintTextCat = value.cname;
+                              catEditingController.text = value.cname;
                               print('Selected Category: ${value.cname}');
                             } else {
                               hintTextCat = 'Select Category';
+                              catEditingController.text = "";
                               print('No category selected');
                             }
                           });
@@ -781,23 +924,24 @@ bool pc=false;
                       ),
                       child: Text('Pick Cover'),
                     ),
-                  pc==true?
-                    Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        child: Image.file(
-                          CoverFile,
-
-                        ),
-                      ),
-                    ],
-                  ) : SizedBox(),
-                    SizedBox(height: 10,),
-
+                    pc == true
+                        ? Wrap(
+                            spacing: 8.0,
+                            runSpacing: 8.0,
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 100,
+                                child: Image.file(
+                                  CoverFile,
+                                ),
+                              ),
+                            ],
+                          )
+                        : SizedBox(),
+                    SizedBox(
+                      height: 10,
+                    ),
                     ElevatedButton(
                       onPressed: getImages,
                       style: ElevatedButton.styleFrom(

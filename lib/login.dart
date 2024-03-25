@@ -316,13 +316,18 @@ class _loginState extends State<login> {
                                       txt = "";
                                       r = '';
                                     });
-                                    logemail.clear();
-                                    logpassword.clear();
-                                    logemailFocusNode.unfocus();
-                                    logpassFocusNode.unfocus();
+
+
                                     SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                     prefs.setBool('isLoggedIn', true);
+                                    prefs.setString('email', logemail.text);
+                                    print(logemail.text);
+                                    logemail.clear();
+                                    logpassword.clear();
+                                    logemail.clear();
+                                    logpassword.clear();
+
 
                                     Navigator.push(
                                       context,
